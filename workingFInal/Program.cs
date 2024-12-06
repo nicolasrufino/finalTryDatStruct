@@ -218,11 +218,5 @@ namespace TreasureHuntGame
             Console.WriteLine();
         }
 
-        // static void SetupChallenges(Tree challenges)
-        // {
-        //     challenges.AddChallenge(3, "Trap");
-        //     challenges.AddChallenge(5, "Puzzle");
-        //     challenges.AddChallenge(7, "Combat");
-        // }
     }
 }

@@ -1,8 +1,8 @@
 0
+1
 9
-5
-100
-44
-5
+90
+28
 0
-Water,Knife,Water,Knife
+0
+Knife,Water,Knife,Food,Key
