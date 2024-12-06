@@ -67,22 +67,15 @@ namespace TreasureHuntGame
                 Console.WriteLine($"[{i + 1}] - Empty");
             }
 
-            Console.WriteLine("Press TAB to equip an item from the inventory.");
-            ConsoleKey key = Console.ReadKey(true).Key;
-
-            if (key == ConsoleKey.Tab)
+            Console.WriteLine("Select the item number you want to use:");
+            if (int.TryParse(Console.ReadLine(), out int slot) && slot > 0 && slot <= hero.Inventory.Count)
             {
-                Console.WriteLine("Select the item number you want to equip:");
-                if (int.TryParse(Console.ReadLine(), out int slot) && slot > 0 && slot <= hero.Inventory.Count)
-                {
-                    string itemToEquip = hero.Inventory[slot - 1];
-                    hero.EquipItem(itemToEquip);
-                    Console.WriteLine($"{itemToEquip} is currently in your hand, press 'E' to use it.");
-                }
-                else
-                {
-                    Console.WriteLine("Invalid slot selected.");
-                }
+                string itemToUse = hero.Inventory[slot - 1];
+                hero.ConsumeResource(itemToUse); // Update to properly invoke ConsumeResource for consumable items
+            }
+            else
+            {
+                Console.WriteLine("Invalid slot selected.");
             }
         }
 
@@ -90,13 +83,10 @@ namespace TreasureHuntGame
         {
             if (!string.IsNullOrEmpty(hero.EquippedItem))
             {
-                Console.WriteLine($"{hero.EquippedItem} is currently in your hand, press 'E' to use it.");
-                ConsoleKey key = Console.ReadKey(true).Key;
-
-                if (key == ConsoleKey.E)
-                {
-                    hero.UseItem(hero.EquippedItem);
-                }
+                Console.WriteLine($"You used {hero.EquippedItem}.");
+                hero.ConsumeResource(hero.EquippedItem); // Update to properly invoke ConsumeResource for consumable items
+                hero.RemoveItem(hero.EquippedItem); // Remove item from inventory after use
+                hero.EquippedItem = null; // Clear the equipped item after use
             }
             else
             {

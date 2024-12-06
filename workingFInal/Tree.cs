@@ -28,6 +28,19 @@ namespace TreasureHuntGame
         public Tree()
         {
             Root = null;
+            InitializeTree();
+        }
+
+        // Initialize the binary tree to represent the levels
+        private void InitializeTree()
+        {
+            Root = new RoomNode(4, "Central Room");
+            Root.Left = new RoomNode(2, "Left Branch Room");
+            Root.Right = new RoomNode(6, "Right Branch Room");
+            Root.Left.Left = new RoomNode(1, "Far Left Room");
+            Root.Left.Right = new RoomNode(3, "Mid Left Room");
+            Root.Right.Left = new RoomNode(5, "Mid Right Room");
+            Root.Right.Right = new RoomNode(7, "Far Right Room");
         }
 
         public void AddRoom(int roomNumber, string description)

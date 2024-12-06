@@ -16,7 +16,7 @@ namespace TreasureHuntGame
         public int CurrentRoomNumber { get; set; }
         public int PositionY { get; set; }
         public List<string> Inventory { get; private set; } = new List<string>();
-        public string EquippedItem { get; private set; } // For currently equipped item
+        public string EquippedItem { get; set; } // For currently equipped item
 
         private Timer resourceTimer;
 
@@ -84,10 +84,15 @@ namespace TreasureHuntGame
                 case "Food":
                     Food = Math.Min(Food + 20, 70);
                     Console.WriteLine("You consumed food. Food level: " + Food);
+                    RemoveItem(resource);
                     break;
                 case "Water":
                     Water = Math.Min(Water + 20, 70);
                     Console.WriteLine("You drank water. Water level: " + Water);
+                    RemoveItem(resource);
+                    break;
+                default:
+                    Console.WriteLine($"You can't use {resource} directly.");
                     break;
             }
         }
@@ -95,17 +100,23 @@ namespace TreasureHuntGame
         // Use item (e.g., healing potion)
         public void UseItem(string item)
         {
-            if (EquippedItem == item)
+            if (Inventory.Contains(item))
             {
                 switch (item)
                 {
                     case "Health Potion":
                         Heal(20);
                         Console.WriteLine("You used a Health Potion. Health: " + Health);
+                        RemoveItem(item);
                         break;
                     case "Food":
                     case "Water":
                         ConsumeResource(item);
+                        break;
+                    case "Key":
+                        Console.WriteLine("You used a Key. It may unlock a door.");
+                        // Logic to interact with the map should be handled in the map class
+                        RemoveItem(item);
                         break;
                     default:
                         Console.WriteLine($"You can't use {item} directly.");
@@ -114,7 +125,7 @@ namespace TreasureHuntGame
             }
             else
             {
-                Console.WriteLine($"{item} is not equipped.");
+                Console.WriteLine($"{item} is not in your inventory.");
             }
         }
 
@@ -142,20 +153,6 @@ namespace TreasureHuntGame
             else
             {
                 Console.WriteLine($"{item} is not in your inventory.");
-            }
-        }
-
-        // Equip an item
-        public void EquipItem(string item)
-        {
-            if (Inventory.Contains(item))
-            {
-                EquippedItem = item;
-                Console.WriteLine($"You equipped {item}.");
-            }
-            else
-            {
-                Console.WriteLine($"You do not have {item} in your inventory to equip.");
             }
         }
     }

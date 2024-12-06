@@ -21,6 +21,7 @@ namespace TreasureHuntGame
             // Initialize game components
             Hero hero = new Hero();
             Tree roomTree = new Tree();
+            InitializeTree(roomTree);
             Map map = new Map(roomTree);
             Items items = new Items();
 
@@ -51,7 +52,6 @@ namespace TreasureHuntGame
             else
             {
                 map.LoadMapFromFile(levels[currentLevel]);
-                // SetupChallenges(roomTree);
                 Console.WriteLine("Starting a new game...");
                 Thread.Sleep(2000);
                 ShowIntro();
@@ -66,10 +66,53 @@ namespace TreasureHuntGame
                 map.DisplayMap(hero.PositionX, hero.PositionY);
                 Console.WriteLine($"Health: {hero.Health}, Food: {hero.Food}, Water: {hero.Water}");
                 Console.WriteLine($"The hero's coordinates are: {hero.PositionX}, {hero.PositionY}");
-                Items.ManageInventory(hero);
+                Console.WriteLine("Inventory:");
+                for (int i = 0; i < hero.Inventory.Count; i++)
+                {
+                    Console.WriteLine($"[{i + 1}] - {hero.Inventory[i]}");
+                }
+                for (int i = hero.Inventory.Count; i < 5; i++)
+                {
+                    Console.WriteLine($"[{i + 1}] - Empty");
+                }
 
                 int currentRoom = map.MapGrid[hero.PositionX, hero.PositionY];
                 map.HandleRoomInteraction(hero.PositionX, hero.PositionY, hero);
+
+                if (currentRoom == 6) // Node (Pathway to another room)
+                {
+                    var currentRoomNode = roomTree.FindRoom(hero.CurrentRoomNumber);
+                    if (currentRoomNode != null)
+                    {
+                        if (currentRoomNode.Left != null && !currentRoomNode.Left.IsCompleted)
+                        {
+                            Console.WriteLine("You proceed to the next room on the left.");
+                            hero.CurrentRoomNumber = currentRoomNode.Left.RoomNumber;
+                            currentLevel = hero.CurrentRoomNumber - 1; // Update current level
+                            map.LoadMapFromFile(levels[currentLevel]);
+                            Thread.Sleep(2000);
+                            continue;
+                        }
+                        else if (currentRoomNode.Right != null && !currentRoomNode.Right.IsCompleted)
+                        {
+                            Console.WriteLine("You proceed to the next room on the right.");
+                            hero.CurrentRoomNumber = currentRoomNode.Right.RoomNumber;
+                            currentLevel = hero.CurrentRoomNumber - 1; // Update current level
+                            map.LoadMapFromFile(levels[currentLevel]);
+                            Thread.Sleep(2000);
+                            continue;
+                        }
+                        else
+                        {
+                            Console.WriteLine("You are at a node, but all paths are completed or blocked.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("You are at a node, but there are no rooms to proceed to.");
+                    }
+                    Thread.Sleep(2000);
+                }
 
                 hungerTimer++;
                 if (hungerTimer >= 20) // Every 20 ticks, decrease food and water
@@ -84,20 +127,36 @@ namespace TreasureHuntGame
                     hungerTimer = 0;
                 }
 
-                Console.WriteLine("Move using W (up), A (left), S (down), D (right). Press Q to quit.");
-                ConsoleKey moveKey = Console.ReadKey(true).Key;
+                Console.WriteLine("Move using W (up), A (left), S (down), D (right). Press Q to quit, or press TAB to use an item from the inventory.");
+                ConsoleKey key = Console.ReadKey(true).Key;
 
-                if (moveKey == ConsoleKey.Q)
+                if (key == ConsoleKey.Q)
                 {
                     SaveGame(hero, map, items, currentLevel);
                     Console.WriteLine("Game saved! Goodbye!");
                     break;
                 }
 
+                if (key == ConsoleKey.Tab)
+                {
+                    Console.WriteLine("Select the item number you want to use:");
+                    if (int.TryParse(Console.ReadLine(), out int slot) && slot > 0 && slot <= hero.Inventory.Count)
+                    {
+                        string itemToUse = hero.Inventory[slot - 1];
+                        hero.UseItem(itemToUse);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid slot selected.");
+                    }
+                    Thread.Sleep(2000);
+                    continue;
+                }
+
                 int newX = hero.PositionX;
                 int newY = hero.PositionY;
 
-                switch (moveKey)
+                switch (key)
                 {
                     case ConsoleKey.W: newX--; break;
                     case ConsoleKey.A: newY--; break;
@@ -125,6 +184,17 @@ namespace TreasureHuntGame
             } while (gameRunning);
 
             Console.WriteLine("Thanks for playing!");
+        }
+
+        static void InitializeTree(Tree roomTree)
+        {
+            roomTree.AddRoom(4, "Central Room");
+            roomTree.AddRoom(2, "Left Branch Room");
+            roomTree.AddRoom(6, "Right Branch Room");
+            roomTree.AddRoom(1, "Far Left Room");
+            roomTree.AddRoom(3, "Left Center Room");
+            roomTree.AddRoom(5, "Right Center Room");
+            roomTree.AddRoom(7, "Far Right Room");
         }
 
         static bool IsValidMove(Map map, int x, int y)
@@ -191,7 +261,9 @@ namespace TreasureHuntGame
                 hero.AddItem(item);
             }
 
-            Map map = new Map(new Tree());
+            Tree roomTree = new Tree();
+            InitializeTree(roomTree);
+            Map map = new Map(roomTree);
             map.LoadMapFromFile(levels[level]);
 
             Items items = new Items();
@@ -217,6 +289,5 @@ namespace TreasureHuntGame
             }
             Console.WriteLine();
         }
-
     }
 }

@@ -85,7 +85,7 @@ namespace TreasureHuntGame
                             2 => "🚪 ", // Door
                             4 => "💧 ", // Water
                             6 => "➡️  ", // Pathway/Node
-                            7 =>"🍲 ", // Food
+                            7 => "🍲 ", // Food
                             _ => "⬜ "  // Unknown
                         });
                     }
@@ -135,15 +135,18 @@ namespace TreasureHuntGame
             {
                 if (currentRoom != null)
                 {
+                    Console.WriteLine("You have reached a pathway node.");
                     if (currentRoom.Left != null && !currentRoom.Left.IsCompleted)
                     {
                         Console.WriteLine("You proceed to the next room on the left.");
                         hero.CurrentRoomNumber = currentRoom.Left.RoomNumber; // Update hero's current room number
+                        LoadMapFromFile($"levels/level{currentRoom.Left.RoomNumber}.txt"); // Load new level map
                     }
                     else if (currentRoom.Right != null && !currentRoom.Right.IsCompleted)
                     {
                         Console.WriteLine("You proceed to the next room on the right.");
                         hero.CurrentRoomNumber = currentRoom.Right.RoomNumber; // Update hero's current room number
+                        LoadMapFromFile($"levels/level{currentRoom.Right.RoomNumber}.txt"); // Load new level map
                     }
                     else
                     {
